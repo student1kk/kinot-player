@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>КиноТин | KinoBD Player</title>
+  <title>Плеер</title>
   <style>
     body{margin:0;background:#0a0d13;color:#f3f5fa;font:15px/1.4 system-ui,sans-serif;padding:24px}
     main{max-width:900px;margin:auto}
@@ -18,23 +18,13 @@
 </head>
 <body>
 <main>
-  <h1>🎬 КиноТин</h1>
+  <h1>🎬 Просмотр</h1>
 
   <form id="form">
     <input id="kp" placeholder="ID Кинопоиска, например 681831">
     <button type="submit">Смотреть</button>
   </form>
 
-  <!--
-    Ниже — ровно то, что требует официальная инструкция KinoBD,
-    без единой лишней строчки CSS или обёртки:
-
-    <div data-kinopoisk="ID" id="kinobd"></div>
-    <script src="https://kinobd.net/js/player_.js"></script>
-
-    ID нужно подставить ДО выполнения их скрипта, поэтому
-    он вписывается через document.write в момент разбора страницы.
-  -->
   <script>
     var kp = (new URLSearchParams(location.search).get('kp') || '').replace(/[^0-9]/g, '');
     if (kp) document.write('<div data-kinopoisk="' + kp + '" id="kinobd"></div>');
@@ -45,7 +35,7 @@
 </main>
 
 <script>
-  // Только ID и история — плеер и его внутренние элементы нигде не трогаем
+
   const params = new URLSearchParams(location.search);
   const kp = (params.get('kp') || '').replace(/[^0-9]/g, '');
 
