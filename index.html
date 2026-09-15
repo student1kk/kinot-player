@@ -3,41 +3,81 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="referrer" content="no-referrer">
-  <title>Просмотр</title>
+  <title>КиноТин | KinoBD Player</title>
 
   <style>
     :root{--bg:#0a0d13;--card:#141925;--input:#0b101a;--line:#283044;--text:#f3f5fa;--muted:#9aa5ba;--accent:#5ce0b3;--red:#ff7180}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(850px 450px at 50% -10%,#1a3241,var(--bg) 64%);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 16px 64px}main{max-width:960px;margin:auto}.head{text-align:center;margin:8px 0 24px}.head h1{font-size:25px;margin:0 0 5px}.head p{color:var(--muted);margin:0}.card{background:rgba(20,25,37,.96);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 45px #0004;margin-bottom:18px}.form{display:grid;grid-template-columns:1fr auto;gap:10px}label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 6px}input{width:100%;padding:12px;background:var(--input);border:1px solid var(--line);border-radius:11px;color:var(--text);font:inherit;outline:0}input:focus{border-color:var(--accent)}button{border:0;border-radius:11px;background:linear-gradient(130deg,#6cebc0,#3dc89a);color:#052019;font-weight:800;padding:12px 20px;cursor:pointer;align-self:end}.hint{margin:12px 0 0;font-size:12px;color:var(--muted)}.player-title{font-weight:750;margin:0 0 12px}.viewport{background:#000;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-height:220px}.viewport ins,.viewport iframe{width:100%!important;height:100%!important;min-height:540px;display:block!important;border:0!important}.empty{padding:70px 20px;text-align:center;color:var(--muted)}h2{font-size:16px;margin:0 0 12px}.history{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}.item{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--input);padding:12px;cursor:pointer;min-height:82px}.item:hover{border-color:var(--accent)}.item .tag{font-size:11px;color:var(--accent);font-weight:800;text-transform:uppercase}.item .id{font-weight:750;margin-top:4px}.item .date{font-size:12px;color:var(--muted);margin-top:2px}.remove{position:absolute;top:5px;right:7px;background:transparent;color:var(--muted);padding:2px 6px;font-size:17px}.remove:hover{color:var(--red)}@media(max-width:600px){body{padding:16px 12px 48px}.form{grid-template-columns:1fr}.form button{width:100%}.viewport ins,.viewport iframe{min-height:240px}.card{padding:14px}}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(850px 450px at 50% -10%,#1a3241,var(--bg) 64%);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 16px 64px}
+    main{max-width:960px;margin:auto}.head{text-align:center;margin:8px 0 24px}.head h1{font-size:25px;margin:0 0 5px}.head p{color:var(--muted);margin:0}
+    .card{background:rgba(20,25,37,.96);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 45px #0004;margin-bottom:18px}
+    .form{display:grid;grid-template-columns:1fr auto;gap:10px}label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin:0 0 6px}
+    input{width:100%;padding:12px;background:var(--input);border:1px solid var(--line);border-radius:11px;color:var(--text);font:inherit;outline:0}
+    input:focus{border-color:var(--accent)}
+    button{border:0;border-radius:11px;background:linear-gradient(130deg,#6cebc0,#3dc89a);color:#052019;font-weight:800;padding:12px 20px;cursor:pointer;align-self:end}
+    .hint{margin:12px 0 0;font-size:12px;color:var(--muted)}
+    .player-title{font-weight:750;margin:0 0 12px}
+    .viewport{background:#000;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-height:220px}
+    .viewport iframe,.viewport div{width:100%!important;min-height:540px;display:block!important;border:0!important}
+    .empty{padding:70px 20px;text-align:center;color:var(--muted)}
+    h2{font-size:16px;margin:0 0 12px}
+    .history{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+    .item{position:relative;border:1px solid var(--line);border-radius:12px;background:var(--input);padding:12px;cursor:pointer;min-height:82px}
+    .item:hover{border-color:var(--accent)}
+    .item .tag{font-size:11px;color:var(--accent);font-weight:800;text-transform:uppercase}
+    .item .id{font-weight:750;margin-top:4px}
+    .item .date{font-size:12px;color:var(--muted);margin-top:2px}
+    .remove{position:absolute;top:5px;right:7px;background:transparent;color:var(--muted);padding:2px 6px;font-size:17px}
+    .remove:hover{color:var(--red)}
+    @media(max-width:600px){body{padding:16px 12px 48px}.form{grid-template-columns:1fr}.form button{width:100%}.viewport iframe,.viewport div{min-height:240px}.card{padding:14px}}
   </style>
-  <script src="https://graphicslab.io/sdk/v2/rendex-sdk.min.js"></script>
 </head>
 <body>
 <main>
-  <div class="head"><h1>🎬 Player</h1><p>Введи ID Кинопоиска и открой плеер</p></div>
+  <div class="head"><h1>🎬 КиноТин · KinoBD</h1><p>Введи ID Кинопоиска и открой плеер</p></div>
+
   <section class="card">
     <form class="form" id="form">
       <div><label for="kp">ID Кинопоиска</label><input id="kp" inputmode="numeric" autocomplete="off" placeholder="Например: 681831"></div>
       <button type="submit">▶ Смотреть</button>
     </form>
+    <p class="hint">Плеер KinoBD не требует Publisher ID и API-ключа. При нажатии страница перезагружается с ID в адресе, чтобы плеер создавался сразу при загрузке — так, как требует их инструкция.</p>
   </section>
 
   <section class="card" id="playerCard">
     <div class="player-title" id="playerTitle">Плеер</div>
-    <div class="viewport" id="viewport"></div>
+    <div class="viewport" id="viewport">
+      <!--
+        Див с data-kinopoisk должен существовать в HTML ДО того, как
+        выполнится <script src="player_.js">, и сразу перед ним —
+        именно так требует официальная инструкция KinoBD.
+        Поэтому используем document.write внутри инлайн-скрипта,
+        который выполняется синхронно во время парсинга страницы.
+      -->
+      <script>
+        (function(){
+          var kp = new URLSearchParams(location.search).get('kp');
+          if (/^\d+$/.test(kp || '')) {
+            document.write('<div data-kinopoisk="' + kp.replace(/[^0-9]/g,'') + '" id="kinobd"></div>');
+          } else {
+            document.write('<div class="empty">Плеер появится здесь после ввода ID Кинопоиска.</div>');
+          }
+        })();
+      </script>
+      <script src="https://kinobd.net/js/player_.js"></script>
+    </div>
   </section>
 
   <section class="card"><h2>Продолжить просмотр</h2><div class="history" id="history"></div></section>
 </main>
 
 <script>
-  const HISTORY = 'vibix_kp_history_v3';
+  const HISTORY_KEY = 'kinobd_history_v1';
   const params = new URLSearchParams(location.search);
   const currentId = params.get('kp');
   const $ = id => document.getElementById(id);
   const safe = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-  const getHistory = () => { try{return JSON.parse(localStorage.getItem(HISTORY))||[]}catch(e){return[]} };
-  const putHistory = a => localStorage.setItem(HISTORY,JSON.stringify(a));
+  const getHistory = () => { try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch(e){return[]} };
+  const putHistory = a => localStorage.setItem(HISTORY_KEY, JSON.stringify(a));
 
   $('kp').value = /^\d+$/.test(currentId||'') ? currentId : '';
   $('form').addEventListener('submit', e => {
@@ -57,12 +97,9 @@
 
   if(/^\d+$/.test(currentId||'')){
     $('playerTitle').textContent='Плеер · Kinopoisk ID '+currentId;
-    $('viewport').innerHTML = '<ins data-publisher-id="678161248" data-type="kp" data-id="'+safe(currentId)+'" data-width="100%" data-height="540px"></ins>';
     let list=getHistory().filter(x=>x.id!==currentId);
     list.unshift({id:currentId,date:new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})});
     putHistory(list.slice(0,16));
-  }else{
-    $('playerCard').querySelector('.viewport').innerHTML='<div class="empty">Плеер появится здесь после ввода ID Кинопоиска.</div>';
   }
   renderHistory();
 </script>
