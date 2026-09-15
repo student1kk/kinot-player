@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>КиноТин | KinoBD Player</title>
+  <title>Player</title>
 
   <style>
-    :root{--bg:#0a0d13;--card:#141925;--input:#0b101a;--line:#283044;--text:#f3f5fa;--muted:#9aa5ba;--accent:#5ce0b3;--red:#ff7180}
+    :root{--bg:#0a0d13;--card:#141925;--input:#0b101a;--line:#283044;--text:#f3f5fa;--muted:#9aa5ba;--accent:#5ce0b3;--red:#ff7180;--warn:#ffc85a}
     *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(850px 450px at 50% -10%,#1a3241,var(--bg) 64%);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 16px 64px}
     main{max-width:960px;margin:auto}.head{text-align:center;margin:8px 0 24px}.head h1{font-size:25px;margin:0 0 5px}.head p{color:var(--muted);margin:0}
     .card{background:rgba(20,25,37,.96);border:1px solid var(--line);border-radius:18px;padding:18px;box-shadow:0 18px 45px #0004;margin-bottom:18px}
@@ -14,9 +14,15 @@
     input{width:100%;padding:12px;background:var(--input);border:1px solid var(--line);border-radius:11px;color:var(--text);font:inherit;outline:0}
     input:focus{border-color:var(--accent)}
     button{border:0;border-radius:11px;background:linear-gradient(130deg,#6cebc0,#3dc89a);color:#052019;font-weight:800;padding:12px 20px;cursor:pointer;align-self:end}
+    button.ghost{background:var(--input);color:var(--muted);border:1px solid var(--line);font-weight:700;padding:9px 14px}
+    button.ghost:hover{color:var(--text);border-color:var(--accent)}
     .hint{margin:12px 0 0;font-size:12px;color:var(--muted)}
-    .player-title{font-weight:750;margin:0 0 12px}
-    .viewport{background:#000;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-height:220px}
+    .player-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+    .player-title{font-weight:750}
+    #mirrorStatus{font-size:12px;color:var(--muted);margin:0 0 10px}
+    #mirrorStatus.err{color:var(--red)}
+    #mirrorStatus.ok{color:var(--accent)}
+    .viewport{position:relative;background:#000;border:1px solid var(--line);border-radius:15px;overflow:hidden;min-height:220px}
     .viewport iframe,.viewport div{width:100%!important;min-height:540px;display:block!important;border:0!important}
     .empty{padding:70px 20px;text-align:center;color:var(--muted)}
     h2{font-size:16px;margin:0 0 12px}
@@ -33,45 +39,34 @@
 </head>
 <body>
 <main>
-  <div class="head"><h1>🎬 КиноТин · KinoBD</h1><p>Введи ID Кинопоиска и открой плеер</p></div>
+  <div class="head"><h1>🎬</h1><p>Введи ID Кинопоиска и открой плеер</p></div>
 
   <section class="card">
     <form class="form" id="form">
       <div><label for="kp">ID Кинопоиска</label><input id="kp" inputmode="numeric" autocomplete="off" placeholder="Например: 681831"></div>
       <button type="submit">▶ Смотреть</button>
     </form>
-    <p class="hint">Плеер KinoBD не требует Publisher ID и API-ключа. При нажатии страница перезагружается с ID в адресе, чтобы плеер создавался сразу при загрузке — так, как требует их инструкция.</p>
+    <p class="hint">Плеер сам перебирает все зеркала KinoBD (net, ru, xyz, club), пока не найдёт рабочее, и запоминает удачное зеркало для следующего раза.</p>
   </section>
 
   <section class="card" id="playerCard">
-    <div class="player-title" id="playerTitle">Плеер</div>
-    <div class="viewport" id="viewport">
-      <!--
-        Див с data-kinopoisk должен существовать в HTML ДО того, как
-        выполнится <script src="player_.js">, и сразу перед ним —
-        именно так требует официальная инструкция KinoBD.
-        Поэтому используем document.write внутри инлайн-скрипта,
-        который выполняется синхронно во время парсинга страницы.
-      -->
-      <script>
-        (function(){
-          var kp = new URLSearchParams(location.search).get('kp');
-          if (/^\d+$/.test(kp || '')) {
-            document.write('<div data-kinopoisk="' + kp.replace(/[^0-9]/g,'') + '" id="kinobd"></div>');
-          } else {
-            document.write('<div class="empty">Плеер появится здесь после ввода ID Кинопоиска.</div>');
-          }
-        })();
-      </script>
-      <script src="https://kinobd.net/js/player_.js"></script>
+    <div class="player-top">
+      <div class="player-title" id="playerTitle">Плеер</div>
+      <button type="button" class="ghost" id="retryBtn" hidden>🔁 Сменить источник</button>
     </div>
+    <div id="mirrorStatus"></div>
+    <div class="viewport" id="viewport"><div class="empty">Плеер появится здесь после ввода ID Кинопоиска.</div></div>
   </section>
 
   <section class="card"><h2>Продолжить просмотр</h2><div class="history" id="history"></div></section>
 </main>
 
 <script>
-  const HISTORY_KEY = 'kinobd_history_v1';
+  const HISTORY_KEY = 'kinobd_history_v2';
+  const MIRROR_KEY = 'kinobd_last_good_mirror';
+  const MIRRORS = ['kinobd.net', 'kinobd.ru', 'kinobd.xyz', 'kinobd.club'];
+  const SCRIPT_TIMEOUT_MS = 7000;
+
   const params = new URLSearchParams(location.search);
   const currentId = params.get('kp');
   const $ = id => document.getElementById(id);
@@ -79,7 +74,80 @@
   const getHistory = () => { try{return JSON.parse(localStorage.getItem(HISTORY_KEY))||[]}catch(e){return[]} };
   const putHistory = a => localStorage.setItem(HISTORY_KEY, JSON.stringify(a));
 
-  $('kp').value = /^\d+$/.test(currentId||'') ? currentId : '';
+  let mirrorOrder = [...MIRRORS];
+  const lastGood = localStorage.getItem(MIRROR_KEY);
+  if (lastGood && mirrorOrder.includes(lastGood)) {
+    mirrorOrder = [lastGood, ...mirrorOrder.filter(m => m !== lastGood)];
+  }
+  let mirrorAttempt = 0;
+  let watchdog = null;
+  let manualCycleIndex = 0;
+
+  function setStatus(text, cls) {
+    const el = $('mirrorStatus');
+    el.textContent = text;
+    el.className = cls || '';
+  }
+
+  function clearWatchdog() {
+    if (watchdog) { clearTimeout(watchdog); watchdog = null; }
+  }
+
+  function buildContainer(kpId) {
+    const box = $('viewport');
+    box.innerHTML = '';
+    document.querySelectorAll('script[data-kinobd-mirror]').forEach(s => s.remove());
+    const holder = document.createElement('div');
+    holder.setAttribute('data-kinopoisk', kpId);
+    holder.id = 'kinobd';
+    box.appendChild(holder);
+    return holder;
+  }
+
+  function tryMirror(kpId, idx) {
+    clearWatchdog();
+    if (idx >= mirrorOrder.length) {
+      setStatus('Ни одно зеркало KinoBD не ответило. Проверь интернет, отключи блокировщик рекламы и попробуй ещё раз.', 'err');
+      $('retryBtn').hidden = false;
+      return;
+    }
+    const mirror = mirrorOrder[idx];
+    setStatus('Пробую источник ' + mirror + '…', '');
+    const holder = buildContainer(kpId);
+
+    const script = document.createElement('script');
+    script.src = 'https://' + mirror + '/js/player_.js';
+    script.dataset.kinobdMirror = '1';
+    script.async = false;
+
+    script.onerror = () => {
+      clearWatchdog();
+      tryMirror(kpId, idx + 1);
+    };
+
+    script.onload = () => {
+      watchdog = setTimeout(() => {
+        if (holder.childElementCount === 0) {
+          tryMirror(kpId, idx + 1);
+        } else {
+          setStatus('Источник ' + mirror + ' подключён.', 'ok');
+          localStorage.setItem(MIRROR_KEY, mirror);
+          $('retryBtn').hidden = false;
+        }
+      }, SCRIPT_TIMEOUT_MS);
+    };
+
+    document.head.appendChild(script);
+  }
+
+  $('retryBtn').addEventListener('click', () => {
+    if (!/^\d+$/.test(currentId || '')) return;
+    manualCycleIndex = (manualCycleIndex + 1) % mirrorOrder.length;
+    const reordered = [...mirrorOrder.slice(manualCycleIndex), ...mirrorOrder.slice(0, manualCycleIndex)];
+    mirrorOrder = reordered;
+    tryMirror(currentId, 0);
+  });
+
   $('form').addEventListener('submit', e => {
     e.preventDefault();
     const id = $('kp').value.trim();
@@ -95,11 +163,14 @@
     box.querySelectorAll('.item').forEach(x=>x.onclick=()=>location.href=location.pathname+'?kp='+encodeURIComponent(x.dataset.id));
   }
 
+  $('kp').value = /^\d+$/.test(currentId||'') ? currentId : '';
+
   if(/^\d+$/.test(currentId||'')){
     $('playerTitle').textContent='Плеер · Kinopoisk ID '+currentId;
     let list=getHistory().filter(x=>x.id!==currentId);
     list.unshift({id:currentId,date:new Date().toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'})});
     putHistory(list.slice(0,16));
+    tryMirror(currentId, 0);
   }
   renderHistory();
 </script>
