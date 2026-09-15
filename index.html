@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Плеер</title>
+  <title>Просмотр просмтариваемый просмотр просмотра для просмотра просмотра</title>
   <style>
     body{margin:0;background:#0a0d13;color:#f3f5fa;font:15px/1.4 system-ui,sans-serif;padding:24px}
     main{max-width:900px;margin:auto}
@@ -18,44 +18,43 @@
 </head>
 <body>
 <main>
-  <h1>🎬 Просмотр</h1>
+  <h1>🎬 Просмотр просмтариваемый просмотр просмотра для просмотра просмотра</h1>
 
-  <form id="form">
-    <input id="kp" placeholder="ID Кинопоиска, например 681831">
-    <button type="submit">Смотреть</button>
+  <form id="form" method="get" action="">
+    <input id="kpInput" name="kp" placeholder="ID Кинопоиска, например 681831">
+    <button type="submit">Просматривать</button>
   </form>
 
+ 
   <script>
-    var kp = (new URLSearchParams(location.search).get('kp') || '').replace(/[^0-9]/g, '');
-    if (kp) document.write('<div data-kinopoisk="' + kp + '" id="kinobd"></div>');
+    var kinopoiskId = (new URLSearchParams(location.search).get('kp') || '').replace(/[^0-9]/g, '');
+    if (kinopoiskId) document.write('<div data-kinopoisk="' + kinopoiskId + '" id="kinobd"></div>');
   </script>
   <script src="https://kinobd.net/js/player_.js"></script>
 
-  <div class="history" id="history"></div>
+  <div class="history" id="historyBox"></div>
 </main>
 
 <script>
+  document.getElementById('kpInput').value = kinopoiskId;
 
-  const params = new URLSearchParams(location.search);
-  const kp = (params.get('kp') || '').replace(/[^0-9]/g, '');
+  document.getElementById('form').addEventListener('submit', function (e) {
+    var id = document.getElementById('kpInput').value.trim();
+    if (!id) { e.preventDefault(); return; }
 
-  document.getElementById('kp').value = kp;
-
-  document.getElementById('form').addEventListener('submit', e => {
     e.preventDefault();
-    const id = document.getElementById('kp').value.trim();
-    if (!id) return;
     location.href = location.pathname + '?kp=' + encodeURIComponent(id);
   });
 
-  const KEY = 'kinobd_history';
-  let list = JSON.parse(localStorage.getItem(KEY) || '[]');
-  if (kp) {
-    list = [kp, ...list.filter(x => x !== kp)].slice(0, 12);
-    localStorage.setItem(KEY, JSON.stringify(list));
+  var HISTORY_KEY = 'kinobd_history';
+  var historyList = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+  if (kinopoiskId) {
+    historyList = [kinopoiskId].concat(historyList.filter(function (x) { return x !== kinopoiskId; })).slice(0, 12);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(historyList));
   }
-  document.getElementById('history').innerHTML = list
-    .map(id => `<a href="?kp=${id}">${id}</a>`).join('');
+  document.getElementById('historyBox').innerHTML = historyList
+    .map(function (id) { return '<a href="?kp=' + id + '">' + id + '</a>'; })
+    .join('');
 </script>
 </body>
 </html>
