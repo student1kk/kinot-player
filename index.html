@@ -1,100 +1,246 @@
 <!doctype html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Просматривый просмотр просмотра с возможность просмотра просмотра в просмотре</title>
-  <style>
-    :root{--bg:#0a0d13;--card:#141925;--input:#0b101a;--line:#283044;--text:#f3f5fa;--muted:#9aa5ba;--accent:#5ce0b3;--red:#ff7180}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:radial-gradient(850px 450px at 50% -10%,#1a3241,var(--bg) 64%);color:var(--text);font:15px/1.45 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;padding:28px 16px 64px}
-    main{max-width:900px;margin:auto}
-    .head{text-align:center;margin:8px 0 24px}
-    .head h1{font-size:24px;margin:0 0 5px}
-    .head p{color:var(--muted);margin:0}
-    .card{background:rgba(20,25,37,.96);border:1px solid var(--line);border-radius:16px;padding:18px;margin-bottom:18px;box-shadow:0 18px 45px #0004}
-    .form{display:flex;gap:8px}
-    input{flex:1;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--input);color:var(--text);font:inherit;outline:0}
-    input:focus{border-color:var(--accent)}
-    button{border:0;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer;font:inherit}
-    button.primary{background:linear-gradient(130deg,#6cebc0,#3dc89a);color:#052019}
-    button.ghost{background:var(--input);color:var(--muted);border:1px solid var(--line)}
-    button.ghost:hover{color:var(--text);border-color:var(--accent)}
-    .player-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 14px;flex-wrap:wrap}
-    .player-title{font-weight:700}
-    .toast{font-size:12px;color:var(--accent);min-height:16px}
-    h2{font-size:15px;margin:0 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-    .history{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px}
-    .item{position:relative;border:1px solid var(--line);border-radius:14px;background:linear-gradient(160deg,#161c29,#0e131d);padding:14px;cursor:pointer;transition:.15s;overflow:hidden}
-    .item:hover{border-color:var(--accent);transform:translateY(-2px)}
-    .item::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),#3dc89a)}
-    .item .tag{font-size:10px;color:var(--accent);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
-    .item .title{font-weight:750;margin-top:6px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-    .item .date{font-size:12px;color:var(--muted);margin-top:8px}
-    .item .remove{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.06);border:0;color:var(--muted);width:22px;height:22px;border-radius:50%;font-size:14px;line-height:1;cursor:pointer}
-    .item .remove:hover{background:var(--red);color:#210608}
-    .empty-hist{color:var(--muted);font-size:13px;padding:8px 2px}
-    @media(max-width:600px){body{padding:16px 12px 48px}.form{flex-direction:column}.card{padding:14px}}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Кинопросмотр — фильмы и сериалы онлайн</title>
+<style>
+  :root{
+    --bg:#0b0e14; --bg2:#11161f; --card:#151b26; --line:#242c3a;
+    --text:#eef2f8; --muted:#8b96ab; --accent:#4ee0a8; --accent2:#2fb888;
+    --danger:#ff6b7a; --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(900px 480px at 50% -10%, #173b34 0%, transparent 60%),
+      radial-gradient(700px 400px at 90% 10%, #1a2a45 0%, transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font:15px/1.5 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  main{max-width:960px;margin:0 auto;padding:28px 16px 72px}
+
+  /* HEADER */
+  .head{text-align:center;margin:12px 0 26px}
+  .head h1{
+    font-size:clamp(20px,3.4vw,28px);margin:0 0 6px;font-weight:800;letter-spacing:-.02em;
+    background:linear-gradient(90deg,#eafaf3,#7fe7bd 70%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .head p{color:var(--muted);margin:0;font-size:14px}
+
+  /* CARDS */
+  .card{
+    background:linear-gradient(180deg,rgba(21,27,38,.95),rgba(17,22,31,.95));
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 14px 36px rgba(0,0,0,.35);
+  }
+
+  /* FORM */
+  .form{display:flex;gap:8px}
+  .form input{
+    flex:1;min-width:0;
+    padding:12px 14px;border-radius:11px;border:1px solid var(--line);
+    background:var(--bg2);color:var(--text);font:inherit;outline:none;
+    transition:border-color .15s, box-shadow .15s;
+  }
+  .form input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(78,224,168,.12)}
+  .btn{
+    border:0;border-radius:11px;padding:12px 20px;font:inherit;font-weight:700;
+    cursor:pointer;transition:transform .1s, filter .15s, opacity .15s;
+  }
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{
+    background:linear-gradient(135deg,#5ef0b8,#34c896);color:#04221a;
+    box-shadow:0 8px 22px rgba(52,200,150,.28);
+  }
+  .btn.primary:hover{filter:brightness(1.06)}
+  .btn.ghost{
+    background:var(--bg2);color:var(--muted);border:1px solid var(--line);
+  }
+  .btn.ghost:hover{color:var(--text);border-color:var(--accent)}
+
+  /* PLAYER */
+  .player-top{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    margin-bottom:14px;flex-wrap:wrap;
+  }
+  .player-title{
+    font-weight:700;font-size:15px;min-width:0;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;
+  }
+  .toast{font-size:12px;color:var(--accent);min-height:16px;margin-top:6px;transition:opacity .2s}
+
+  #playerWrap{
+    position:relative;width:100%;background:#070a10;border-radius:12px;
+    overflow:hidden;border:1px solid var(--line);
+    min-height:200px;
+  }
+  #kinobd iframe,
+  #playerWrap iframe,
+  #playerWrap video{
+    width:100%;aspect-ratio:16/9;display:block;border:0;
+  }
+  #playerFallback{
+    display:none;text-align:center;color:var(--muted);
+    padding:36px 20px;font-size:14px;
+  }
+  .player-empty{
+    text-align:center;color:var(--muted);padding:52px 16px;font-size:14px;
+  }
+  .player-empty .big{font-size:40px;margin-bottom:8px;opacity:.6}
+
+  /* LOADER */
+  .loader{
+    display:none;position:absolute;inset:0;place-items:center;
+    background:rgba(7,10,16,.85);z-index:5;
+  }
+  .loader.on{display:grid}
+  .spinner{
+    width:38px;height:38px;border-radius:50%;
+    border:3px solid rgba(78,224,168,.2);
+    border-top-color:var(--accent);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* HISTORY */
+  h2.section{
+    font-size:12px;margin:0 0 12px;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.12em;font-weight:800;
+  }
+  .history{
+    display:grid;gap:12px;
+    grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  }
+  .item{
+    position:relative;border:1px solid var(--line);border-radius:12px;
+    background:linear-gradient(160deg,#161d2a,#0e131c);
+    padding:14px 14px 12px;cursor:pointer;transition:.15s;
+    overflow:hidden;
+  }
+  .item:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .item::before{
+    content:"";position:absolute;top:0;left:0;right:0;height:3px;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    opacity:.8;
+  }
+  .item .tag{
+    font-size:10px;color:var(--accent);font-weight:800;
+    text-transform:uppercase;letter-spacing:.08em;
+  }
+  .item .title{
+    font-weight:700;margin-top:6px;line-height:1.3;font-size:14px;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+    overflow:hidden;min-height:36px;
+  }
+  .item .date{font-size:11px;color:var(--muted);margin-top:8px}
+  .item .remove{
+    position:absolute;top:8px;right:8px;
+    background:rgba(255,255,255,.06);border:0;color:var(--muted);
+    width:22px;height:22px;border-radius:50%;font-size:14px;line-height:1;
+    cursor:pointer;padding:0;
+  }
+  .item .remove:hover{background:var(--danger);color:#210608}
+  .empty-hist{color:var(--muted);font-size:13px;padding:6px 2px}
+
+  @media(max-width:600px){
+    main{padding:18px 12px 56px}
+    .form{flex-direction:column}
+    .card{padding:14px}
+  }
+</style>
 </head>
 <body>
 <main>
-  <div class="head"><h1>🎬 Просматривый просмотр просмотра с возможность просмотра просмотра в просмотре</h1><p>Введи ID Кинопоиска и открой плеер</p></div>
+  <header class="head">
+    <h1>🎬 Кинопросмотр</h1>
+    <p>Введите ID Кинопоиска — и смотрите фильм или сериал прямо здесь</p>
+  </header>
 
   <section class="card">
-    <form id="form" method="get" action="" class="form">
-      <input id="kpInput" name="kp" placeholder="ID Кинопоиска, например 681831">
-      <button type="submit" class="primary">▶ Смотреть</button>
+    <form id="form" class="form" autocomplete="off">
+      <input id="kpInput" name="kp" inputmode="numeric" pattern="[0-9]*"
+             placeholder="ID Кинопоиска, например 681831" aria-label="ID Кинопоиска">
+      <button type="submit" class="btn primary">▶ Смотреть</button>
     </form>
   </section>
 
   <section class="card">
     <div class="player-top">
       <div class="player-title" id="playerTitle">Плеер</div>
-      <button type="button" class="ghost" id="shareBtn">🔗 Поделиться</button>
+      <button type="button" class="btn ghost" id="shareBtn" title="Скопировать ссылку">🔗 Поделиться</button>
     </div>
     <div class="toast" id="toast"></div>
 
-    
-    <script>
-      var kinopoiskId = (new URLSearchParams(location.search).get('kp') || '').replace(/[^0-9]/g, '');
-      if (kinopoiskId) document.write('<div data-kinopoisk="' + kinopoiskId + '" id="kinobd"></div>');
-    </script>
-    <script src="https://kinobd.net/js/player_.js"></script>
+    <div id="playerWrap">
+      <div class="loader" id="loader"><div class="spinner"></div></div>
+      <!-- Контейнер для kinobd: ДОЛЖЕН существовать до подключения player_.js -->
+      <div id="kinobd"></div>
+      <div id="playerFallback">
+        Не удалось загрузить плеер. Проверьте ID или откройте позже.
+      </div>
+    </div>
   </section>
 
   <section class="card">
-    <h2>Продолжить просмотр</h2>
+    <h2 class="section">Продолжить просмотр</h2>
     <div class="history" id="historyBox"></div>
   </section>
 </main>
 
 <script>
-  var HISTORY_KEY = 'kinobd_history_v3';
+(function () {
+  'use strict';
+
+  var HISTORY_KEY = 'kinobd_history_v4';
   var $ = function (id) { return document.getElementById(id); };
-  var esc = function (s) { return String(s).replace(/[&<>"']/g, function (c) {
-    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c];
-  }); };
+  var esc = function (s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c];
+    });
+  };
+
+  // --- ID из URL ---
+  var kpRaw = new URLSearchParams(location.search).get('kp') || '';
+  var kinopoiskId = kpRaw.replace(/[^0-9]/g, '');
 
   $('kpInput').value = kinopoiskId;
 
-  function getHistory() { try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; } catch (e) { return []; } }
-  function putHistory(list) { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }
+  // --- История ---
+  function getHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
+    catch (e) { return []; }
+  }
+  function putHistory(list) {
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); } catch (e) {}
+  }
 
   function renderHistory() {
     var box = $('historyBox');
     var list = getHistory();
-    if (!list.length) { box.innerHTML = '<div class="empty-hist">История пока пуста.</div>'; return; }
+    if (!list.length) {
+      box.innerHTML = '<div class="empty-hist">История пока пуста.</div>';
+      return;
+    }
     box.innerHTML = list.map(function (x, i) {
       var title = x.title ? esc(x.title) : ('ID ' + esc(x.id));
-      return '<article class="item" data-id="' + esc(x.id) + '">' +
-        '<button class="remove" data-remove="' + i + '" title="Удалить">×</button>' +
+      return '<article class="item" data-id="' + esc(x.id) + '" tabindex="0">' +
+        '<button class="remove" data-remove="' + i + '" title="Удалить" aria-label="Удалить">×</button>' +
         '<div class="tag">Кинопоиск</div>' +
         '<div class="title">' + title + '</div>' +
         '<div class="date">' + esc(x.date) + '</div>' +
       '</article>';
     }).join('');
-    Array.prototype.forEach.call(box.querySelectorAll('[data-remove]'), function (b) {
+
+    box.querySelectorAll('[data-remove]').forEach(function (b) {
       b.addEventListener('click', function (e) {
         e.stopPropagation();
         var a = getHistory();
@@ -103,9 +249,10 @@
         renderHistory();
       });
     });
-    Array.prototype.forEach.call(box.querySelectorAll('.item'), function (el) {
-      el.addEventListener('click', function () {
-        location.href = location.pathname + '?kp=' + encodeURIComponent(el.dataset.id);
+    box.querySelectorAll('.item').forEach(function (el) {
+      el.addEventListener('click', function () { openId(el.dataset.id); });
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openId(el.dataset.id); }
       });
     });
   }
@@ -117,79 +264,147 @@
       title: title || null,
       date: new Date().toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' })
     });
-    putHistory(list.slice(0, 16));
+    putHistory(list.slice(0, 24));
     renderHistory();
   }
 
   function setHistoryTitle(id, title) {
-    var list = getHistory();
-    var changed = false;
-    list.forEach(function (x) { if (x.id === id && !x.title && title) { x.title = title; changed = true; } });
+    if (!title) return;
+    var list = getHistory(), changed = false;
+    list.forEach(function (x) {
+      if (x.id === id && x.title !== title) { x.title = title; changed = true; }
+    });
     if (changed) { putHistory(list); renderHistory(); }
   }
 
-  function fetchTitleFromKinobd(id) {
-    var candidates = [
-      'https://kinobd.net/api/films/search/kp/' + id,
-      'https://kinobd.net/api/films/' + id
-    ];
-    (function tryNext(idx) {
-      if (idx >= candidates.length) return;
-      fetch(candidates[idx], { headers: { Accept: 'application/json' } })
-        .then(function (r) { if (!r.ok) throw new Error('bad status'); return r.json(); })
-        .then(function (data) {
-          var film = Array.isArray(data) ? data[0] : (data && (data.data || data));
-          var name = film && (film.name_rus || film.name || film.title || film.original_title || film.name_original);
-          if (name) {
-            setHistoryTitle(id, name);
-            $('playerTitle').textContent = name;
-          } else {
-            tryNext(idx + 1);
-          }
-        })
-        .catch(function () { tryNext(idx + 1); });
-    })(0);
+  // --- Навигация ---
+  function openId(id) {
+    id = String(id).replace(/[^0-9]/g, '');
+    if (!id) return;
+    location.href = location.pathname + '?kp=' + encodeURIComponent(id);
   }
 
   $('form').addEventListener('submit', function (e) {
-    var id = $('kpInput').value.trim();
-    if (!id) { e.preventDefault(); return; }
     e.preventDefault();
-    location.href = location.pathname + '?kp=' + encodeURIComponent(id);
+    openId($('kpInput').value.trim());
   });
 
+  // --- Загрузка названия (параллельно) ---
+  function fetchTitle(id) {
+    var urls = [
+      'https://kinobd.net/api/films/search/kp/' + id,
+      'https://kinobd.net/api/films/' + id
+    ];
+    var promises = urls.map(function (u) {
+      return fetch(u, { headers: { Accept: 'application/json' } })
+        .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+        .then(function (data) {
+          var film = Array.isArray(data) ? data[0] : (data && (data.data || data));
+          var name = film && (
+            film.name_rus || film.name || film.title ||
+            film.original_title || film.name_original
+          );
+          if (!name) throw 0;
+          return name;
+        });
+    });
+    return Promise.any ? Promise.any(promises).catch(function () { return null; })
+                       : Promise.race(promises).catch(function () { return null; });
+  }
+
+  // --- Загрузка плеера kinobd ---
+  var playerScriptLoaded = false;
+  function loadPlayer(id) {
+    var container = $('kinobd');
+    // Устанавливаем атрибут ДО подключения скрипта
+    container.setAttribute('data-kinopoisk', id);
+
+    var loader = $('loader');
+    loader.classList.add('on');
+
+    var done = function () { loader.classList.remove('on'); };
+
+    if (playerScriptLoaded && window.KinobdPlayer && window.KinobdPlayer.init) {
+      try { window.KinobdPlayer.init(); } catch (e) {}
+      done();
+      return;
+    }
+
+    var s = document.createElement('script');
+    s.src = 'https://kinobd.net/js/player_.js';
+    s.async = true;
+    s.onload = function () {
+      playerScriptLoaded = true;
+      done();
+      // Если плеер не появился через 3 секунды — показываем фолбэк
+      setTimeout(function () {
+        var hasIframe = container.querySelector('iframe, video');
+        if (!hasIframe) $('playerFallback').style.display = 'block';
+      }, 3000);
+    };
+    s.onerror = function () {
+      done();
+      $('playerFallback').style.display = 'block';
+    };
+    document.body.appendChild(s);
+  }
+
+  // --- Шаринг ---
   $('shareBtn').addEventListener('click', function () {
     var url = location.href;
     var showToast = function (text) {
       var t = $('toast');
       t.textContent = text;
-      setTimeout(function () { if (t.textContent === text) t.textContent = ''; }, 2500);
+      clearTimeout(showToast._t);
+      showToast._t = setTimeout(function () { if (t.textContent === text) t.textContent = ''; }, 2600);
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(url).then(function () {
-        showToast('Ссылка скопирована: ' + url);
-      }).catch(function () { fallbackCopy(url, showToast); });
+      navigator.clipboard.writeText(url)
+        .then(function () { showToast('Ссылка скопирована'); })
+        .catch(function () { fallbackCopy(url, showToast); });
     } else {
       fallbackCopy(url, showToast);
     }
   });
 
   function fallbackCopy(text, cb) {
-    var tmp = document.createElement('input');
+    var tmp = document.createElement('textarea');
     tmp.value = text;
+    tmp.style.position = 'fixed';
+    tmp.style.opacity = '0';
     document.body.appendChild(tmp);
     tmp.select();
-    try { document.execCommand('copy'); cb('Ссылка скопирована: ' + text); }
-    catch (e) { cb('Не удалось скопировать автоматически. Скопируй адрес из строки браузера.'); }
+    try { document.execCommand('copy'); cb('Ссылка скопирована'); }
+    catch (e) { cb('Скопируйте адрес из строки браузера'); }
     document.body.removeChild(tmp);
   }
 
+  // --- Инициализация страницы ---
   if (kinopoiskId) {
-    $('playerTitle').textContent = 'Плеер · Kinopoisk ID ' + kinopoiskId;
+    $('playerTitle').textContent = 'Загрузка… · ID ' + kinopoiskId;
+
+    // Мгновенно пишем в историю
     upsertHistory(kinopoiskId, null);
-    fetchTitleFromKinobd(kinopoiskId);
+
+    // Параллельно: название + плеер
+    fetchTitle(kinopoiskId).then(function (name) {
+      if (name) {
+        $('playerTitle').textContent = name;
+        setHistoryTitle(kinopoiskId, name);
+      } else {
+        $('playerTitle').textContent = 'Фильм · Kinopoisk ID ' + kinopoiskId;
+      }
+    });
+
+    loadPlayer(kinopoiskId);
+  } else {
+    // Нет ID — показываем заглушку вместо пустого контейнера
+    $('kinobd').innerHTML =
+      '<div class="player-empty"><div class="big">🎞️</div>Введите ID Кинопоиска выше, чтобы начать просмотр</div>';
   }
+
   renderHistory();
+})();
 </script>
 </body>
 </html>
